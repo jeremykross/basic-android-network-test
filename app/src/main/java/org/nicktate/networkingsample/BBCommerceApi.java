@@ -1,6 +1,7 @@
 package org.nicktate.networkingsample;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
@@ -10,6 +11,7 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
 import org.nicktate.networkingsample.model.MCategory;
+import org.nicktate.networkingsample.model.MCustomCategory;
 
 import java.io.IOException;
 import java.util.List;
@@ -33,10 +35,10 @@ public class BBCommerceApi {
      * @param catId the category id as a String
      * @return
      */
-    public Observable<List<MCategory>> getCategories(final String catId) {
-        return Observable.create(new OnSubscribe<List<MCategory>>() {
+    public <T extends MCategory> Observable<List<T>> getCategories(final String catId) {
+        return Observable.create(new OnSubscribe<List<T>>() {
                     @Override
-                    public void call(final Subscriber<? super List<MCategory>> subscriber) {
+                    public void call(final Subscriber<? super List<T>> subscriber) {
 
                         // build network request with the given category id
                         Request request = new Request.Builder()
@@ -65,7 +67,7 @@ public class BBCommerceApi {
                                                                 .getAsJsonObject()
                                                                 .getAsJsonArray("categories");
 
-                                List<MCategory> categories =  mGson.fromJson(categoryJsonArray, new TypeToken<List<MCategory>>(){}.getType());
+                                List<T> categories =  mGson.fromJson(categoryJsonArray, new TypeToken<List<MCategory>>(){}.getType());
 
                                 // inform the observer that there
                                 // there is data available for consumption
@@ -99,6 +101,8 @@ public class BBCommerceApi {
     private BBCommerceApi() {
         mClient = new OkHttpClient();
         mJsonParser = new JsonParser();
-        mGson = new Gson();
+        GsonBuilder b = new GsonBuilder().setPrettyPrinting();
+        b.registerTypeAdapter(MCategory.class, new MCustomCategory.Deserializer());
+        mGson = b.create();
     }
 }

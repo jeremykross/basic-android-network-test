@@ -8,6 +8,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import org.nicktate.networkingsample.model.MCategory;
+import org.nicktate.networkingsample.model.MCustomCategory;
 
 import java.util.List;
 
@@ -30,6 +31,12 @@ public class MainActivity extends ActionBarActivity {
         BBCommerceApi.getInstance()
                 .getCategories("1")
                 .flatMap(mCategoryFunc1)
+                .map(new Func1<MCategory, MCustomCategory>() {
+                    @Override
+                    public MCustomCategory call(MCategory category) {
+                        return (MCustomCategory) category;
+                    }
+                })
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(mCategorySubscriber);
@@ -57,7 +64,7 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private Subscriber<MCategory> mCategorySubscriber = new Subscriber<MCategory>() {
+    private Subscriber<MCustomCategory> mCategorySubscriber = new Subscriber<MCustomCategory>() {
         @Override
         public void onCompleted() {
             Log.d(TAG, "onCompleted");
@@ -69,10 +76,9 @@ public class MainActivity extends ActionBarActivity {
         }
 
         @Override
-        public void onNext(MCategory category) {
+        public void onNext(MCustomCategory category) {
             Log.d(TAG, "onNext");
-            Log.d(TAG, "Category iD: " + category.id);
-            Toast.makeText(MainActivity.this, "Category iD: " + category.id, Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, "Category iD: " + category.href, Toast.LENGTH_SHORT).show();
         }
     };
 

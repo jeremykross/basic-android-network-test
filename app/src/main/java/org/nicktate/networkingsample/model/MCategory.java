@@ -6,5 +6,4 @@ package org.nicktate.networkingsample.model;
 public class MCategory {
     public String title;
     public String id;
-    public String href;
 }
