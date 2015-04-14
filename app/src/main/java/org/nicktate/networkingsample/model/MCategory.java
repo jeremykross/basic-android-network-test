@@ -1,4 +1,4 @@
-package org.nicktate.networkingsample;
+package org.nicktate.networkingsample.model;
 
 /**
  * Created by nick on 4/4/15.

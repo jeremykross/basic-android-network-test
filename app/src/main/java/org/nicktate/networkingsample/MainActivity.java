@@ -2,34 +2,38 @@ package org.nicktate.networkingsample;
 
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
-import rx.functions.Action1;
+import org.nicktate.networkingsample.model.MCategory;
+
+import java.util.List;
+
+import rx.Observable;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
+import rx.schedulers.Schedulers;
 
 
 public class MainActivity extends ActionBarActivity {
+
+    private static final String TAG = "RxJavaSample";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        System.out.println("\n\n\n Before before BEFORE \n\n\n");
-
-        BBCommerceApi.getInstance().getCategory("1")
-                .forEach(new Action1<MCategory>() {
-                    @Override
-                    public void call(MCategory category) {
-                        System.out.println("Title: " + category.title);
-                        System.out.println("ID: " + category.id);
-                        System.out.println("Href: " + category.href);
-                    }
-                });
-
-        System.out.println("\n\n\n After after AFTER \n\n\n");
+        BBCommerceApi.getInstance()
+                .getCategories("1")
+                .flatMap(mCategoryFunc1)
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(mCategorySubscriber);
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -52,4 +56,31 @@ public class MainActivity extends ActionBarActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    private Subscriber<MCategory> mCategorySubscriber = new Subscriber<MCategory>() {
+        @Override
+        public void onCompleted() {
+            Log.d(TAG, "onCompleted");
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            Log.d(TAG, "onError: " + e.getMessage());
+        }
+
+        @Override
+        public void onNext(MCategory category) {
+            Log.d(TAG, "onNext");
+            Log.d(TAG, "Category iD: " + category.id);
+            Toast.makeText(MainActivity.this, "Category iD: " + category.id, Toast.LENGTH_SHORT).show();
+        }
+    };
+
+    private Func1<List<MCategory>, Observable<MCategory>> mCategoryFunc1 = new Func1<List<MCategory>, Observable<MCategory>>() {
+        @Override
+        public Observable<MCategory> call(List<MCategory> categories) {
+            return Observable.from(categories);
+        }
+    };
+
 }
