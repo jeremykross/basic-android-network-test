@@ -1,5 +1,7 @@
 package org.nicktate.networkingsample;
 
+import org.nicktate.networkingsample.model.MCategory;
+
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
@@ -8,6 +10,7 @@ import com.squareup.okhttp.Response;
 import rx.Observable;
 import rx.Observable.OnSubscribe;
 import rx.Subscriber;
+import rx.functions.Func1;
 
 import groovy.json.JsonSlurper;
 
@@ -20,8 +23,8 @@ public class BBCommerceApiGroovy {
         mClient = new OkHttpClient();
     }
 
-    public Observable<Object> get(final String endpoint) {
-        return Observable.create( { subscriber ->
+    public Observable get(final String endpoint) {
+        return Observable.create({ subscriber ->
             Request request = new Request.Builder()
                 .url(baseUrl + endpoint)
                 .get()
@@ -33,18 +36,42 @@ public class BBCommerceApiGroovy {
                 }
 
                 public void onResponse(Response res) {
-                    subscriber.onNext(new JsonSlurper().parseText(res.body().string()));
+                    subscriber.onNext(
+                        new JsonSlurper().parseText(res.body().string()));
                     subscriber.onCompleted();
                 }
             });
 
-
-        } as OnSubscribe<Object>);
+        });
     }
 
-    public Observable<List> getCategories(final String catId) {
+    /*
+    def getCategoryList(final String catId) {
         return get("/categories/" + catId);
     }
+    */
+
+    /*
+    public Observable< List<MCategory> > getCategoryList(final String catId) {
+        return get("/categories/" + catId)
+            .map({ x->
+                return x.categories.collect { y ->
+                    MCategory category = new MCategory();
+                    category.title = y.title;
+                    category.id = y.id;
+                    category.href = y.href;
+                    return category;
+                }
+            });
+    }
+
+    public Observable<MCategory> getCategories(final String catId) {
+        return getCategoryList(catId)
+            .flatMap({ x->
+                Observable.from(x);
+            });
+    } 
+    */
 
     public static BBCommerceApiGroovy getInstance() {
         if(sInstance == null) sInstance = new BBCommerceApiGroovy();

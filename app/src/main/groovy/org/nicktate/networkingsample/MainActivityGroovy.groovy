@@ -1,9 +1,11 @@
 package org.nicktate.networkingsample;
 
 import org.nicktate.networkingsample.BBCommerceApiGroovy;
+import org.nicktate.networkingsample.BBCommerceApi;
 
 import rx.Observable;
 import rx.Subscriber;
+import rx.schedulers.Schedulers;
 import rx.android.schedulers.AndroidSchedulers;
 
 import android.support.v7.app.ActionBarActivity;
@@ -18,10 +20,12 @@ public class MainActivityGroovy extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        BBCommerceApiGroovy.getInstance()
-            .get("/categories/1")
+        BBCommerceApi.getInstance()
+            .getCategories("1")
+            .subscribeOn(Schedulers.newThread())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(new Subscriber<Object>() {
+            .flatMap { x -> Observable.from(x) }
+            .subscribe(new Subscriber() {
                 @Override
                 public void onCompleted() {
                     Toast.makeText(MainActivityGroovy.this, "Completed", Toast.LENGTH_SHORT).show();
@@ -33,8 +37,8 @@ public class MainActivityGroovy extends ActionBarActivity {
                 }
 
                 @Override
-                public void onNext(Object object) {
-                    Toast.makeText(MainActivityGroovy.this, "Resp: " + object, Toast.LENGTH_SHORT).show();
+                public void onNext(category) {
+                    Toast.makeText(MainActivityGroovy.this, "Category Id: " + category.id, Toast.LENGTH_SHORT).show();
                 }
             });
     }

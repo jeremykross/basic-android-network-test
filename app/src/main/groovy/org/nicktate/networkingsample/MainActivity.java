@@ -1,5 +1,7 @@
 package org.nicktate.networkingsample;
 
+import org.nicktate.networkingsample.BBCommerceApiGroovy;
+
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
