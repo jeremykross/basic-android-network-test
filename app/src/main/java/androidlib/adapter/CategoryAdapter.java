@@ -12,7 +12,7 @@ import java.util.List;
 
 import androidlib.BasePageActivity;
 import androidlib.activity.CategoryPage;
-import androidlib.view.BBCategoryRow;
+import androidlib.view.CategoryRow;
 import networklib.model.MCategory;
 
 /**
@@ -38,17 +38,16 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
 
     @Override
     public CategoryAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        final View v = new BBCategoryRow(mActivity);
+        final View v = new CategoryRow(mActivity);
         return new ViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(final CategoryAdapter.ViewHolder holder, int position) {
         final MCategory category = mCategories.get(position);
-
-        holder.rowText.setText(category.title);
-
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
+        CategoryRow row = (CategoryRow)holder.itemView;
+        row.bindData(category);
+        row.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent();
