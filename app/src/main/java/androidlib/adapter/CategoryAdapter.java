@@ -10,7 +10,7 @@ import org.nicktate.clientexample.R;
 
 import java.util.List;
 
-import androidlib.BasePageActivity;
+import androidlib.activity.BasePageActivity;
 import androidlib.activity.CategoryPage;
 import androidlib.view.CategoryRow;
 import networklib.model.MCategory;

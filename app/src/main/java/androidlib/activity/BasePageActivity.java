@@ -1,4 +1,4 @@
-package androidlib;
+package androidlib.activity;
 
 import android.app.Activity;
 

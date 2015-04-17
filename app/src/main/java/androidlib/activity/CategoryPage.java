@@ -3,15 +3,12 @@ package androidlib.activity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.Toast;
 
 import org.nicktate.clientexample.R;
 
 import java.util.List;
 
-import androidlib.BasePageActivity;
 import androidlib.adapter.CategoryAdapter;
 import networklib.BBCommerceApi;
 import networklib.model.MCategory;
