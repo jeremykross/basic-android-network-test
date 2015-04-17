@@ -38,7 +38,8 @@ public class BBCategoryRow extends LinearLayout {
     }
 
     private void init(Context context) {
-        LayoutInflater.from(context).inflate(R.layout.bb_category_row, this, true);
+        setOrientation(LinearLayout.VERTICAL);
+        LayoutInflater.from(context).inflate(R.layout.category_row, this, true);
         vTextView = (TextView) findViewById(R.id.row_text);
     }
 

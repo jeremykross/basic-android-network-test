@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:clickable="true">
+    android:layout_gravity="center_vertical">
 
     <TextView
         android:id="@+id/row_text"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/row_height"
+        android:layout_height="50dp"
         android:textSize="@dimen/text_medium"
         android:textColor="@color/text"
         android:paddingLeft="@dimen/spacing"
@@ -19,7 +18,8 @@
         android:gravity="center_vertical"
         android:textStyle="bold"
         android:textAllCaps="true"
-        tools:text="Vitamins"/>
+        tools:text="Vitamins"
+        android:layout_margin="@dimen/spacing_micro" />
 
     <View
         android:id="@+id/divider"
@@ -27,4 +27,4 @@
         android:layout_height="@dimen/divider_height"
         android:background="@color/divider"/>
 
-</LinearLayout>
+</merge>

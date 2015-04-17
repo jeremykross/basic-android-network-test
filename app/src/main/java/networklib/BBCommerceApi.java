@@ -21,23 +21,23 @@ import static rx.Observable.OnSubscribe;
  * Created by nick on 4/4/15.
  */
 public class BBCommerceApi {
-    private String baseUrl = "https://mockapi.uat.bbhosted.com/";
+    private String baseUrl = "https://gncapi.uat.bbhosted.com";
     private OkHttpClient mClient;
     private JsonParser mJsonParser;
 
     /**
      *
-     * @param catId the category id as a String
+     * @param route the category id as a String
      * @return
      */
-    public <T extends MCategory> Observable<List<T>> getCategories(final String catId) {
+    public <T extends MCategory> Observable<List<T>> getCategories(final String route) {
         return Observable.create(new OnSubscribe<List<T>>() {
                     @Override
                     public void call(final Subscriber<? super List<T>> subscriber) {
 
                         // build network request with the given category id
                         Request request = new Request.Builder()
-                                .url(baseUrl + "categories/" + catId)
+                                .url(baseUrl + route)
                                 .get() // GET request
                                 .build();
 
