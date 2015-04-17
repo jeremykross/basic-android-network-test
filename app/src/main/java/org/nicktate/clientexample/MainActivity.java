@@ -1,4 +1,4 @@
-package org.nicktate.networkingsample;
+package org.nicktate.clientexample;
 
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -7,11 +7,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import org.nicktate.networkingsample.model.MCategory;
-import org.nicktate.networkingsample.model.MCustomCategory;
+import androidlib.BasePageActivity;
+import networklib.model.MCategory;
+import org.nicktate.clientexample.model.MCustomCategory;
 
 import java.util.List;
 
+import networklib.BBCommerceApi;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -19,7 +21,7 @@ import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends BasePageActivity {
 
     private static final String TAG = "RxJavaSample";
 
@@ -30,16 +32,36 @@ public class MainActivity extends ActionBarActivity {
 
         BBCommerceApi.getInstance()
                 .getCategories("1")
-                .flatMap(mCategoryFunc1)
-                .map(new Func1<MCategory, MCustomCategory>() {
-                    @Override
-                    public MCustomCategory call(MCategory category) {
-                        return (MCustomCategory) category;
-                    }
-                })
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(mCategorySubscriber);
+                .flatMap(new Func1<List<MCategory>, Observable<MCategory>>() {
+                    @Override
+                    public Observable<MCategory> call(List<MCategory> mCategories) {
+                        return Observable.from(mCategories);
+                    }
+                })
+                .map(new Func1<MCategory, String>() {
+                    @Override
+                    public String call(MCategory mCategory) {
+                        return mCategory.title;
+                    }
+                })
+                .subscribe(new Subscriber<String>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onNext(String s) {
+                        Toast.makeText(MainActivity.this, s, Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     @Override

@@ -1,7 +1,5 @@
-package org.nicktate.networkingsample;
+package networklib;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
@@ -10,12 +8,10 @@ import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
-import org.nicktate.networkingsample.model.MCategory;
-import org.nicktate.networkingsample.model.MCustomCategory;
-
 import java.io.IOException;
 import java.util.List;
 
+import networklib.model.MCategory;
 import rx.Observable;
 import rx.Subscriber;
 
@@ -28,7 +24,6 @@ public class BBCommerceApi {
     private String baseUrl = "https://mockapi.uat.bbhosted.com/";
     private OkHttpClient mClient;
     private JsonParser mJsonParser;
-    private Gson mGson;
 
     /**
      *
@@ -67,7 +62,8 @@ public class BBCommerceApi {
                                                                 .getAsJsonObject()
                                                                 .getAsJsonArray("categories");
 
-                                List<T> categories =  mGson.fromJson(categoryJsonArray, new TypeToken<List<MCategory>>(){}.getType());
+                                List<T> categories =  GsonUtils.getInstance().getGson().fromJson(categoryJsonArray, new TypeToken<List<MCategory>>() {
+                                }.getType());
 
                                 // inform the observer that there
                                 // there is data available for consumption
@@ -76,7 +72,6 @@ public class BBCommerceApi {
                                 // inform the observer that we are
                                 // have finished feeding it data
                                 subscriber.onCompleted();
-
                                 // XXX: shouldn't we let the
                                 // subscriber perform this operation
                                 // based on the lifecycle of the fragment/activity
@@ -87,6 +82,12 @@ public class BBCommerceApi {
 
 
         });
+
+    }
+
+    public <A> List<A> getStuff(A thing) {
+        return GsonUtils.getInstance().getGson().fromJson("sdf", new TypeToken<List<A>>() {
+        }.getType());
     }
 
     // singleton
@@ -101,8 +102,5 @@ public class BBCommerceApi {
     private BBCommerceApi() {
         mClient = new OkHttpClient();
         mJsonParser = new JsonParser();
-        GsonBuilder b = new GsonBuilder().setPrettyPrinting();
-        b.registerTypeAdapter(MCategory.class, new MCustomCategory.Deserializer());
-        mGson = b.create();
     }
 }
