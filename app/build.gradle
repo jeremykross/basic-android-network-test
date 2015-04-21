@@ -21,10 +21,10 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:22.0.0'
+    compile 'com.android.support:appcompat-v7:21.0.0'
     compile 'io.reactivex:rxjava:1.0.8'
     compile 'io.reactivex:rxandroid:0.24.0'
     compile 'com.squareup.okhttp:okhttp:2.3.0'
     compile 'io.gsonfire:gson-fire:1.0.1'
-    compile ('com.android.support:recyclerview-v7:22.0.0')
+    compile ('com.android.support:recyclerview-v7:21.0.0')
 }

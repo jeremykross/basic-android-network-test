@@ -6,14 +6,18 @@ import com.google.gson.reflect.TypeToken;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
+import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
+import com.squareup.okhttp.MediaType;
 
 import java.io.IOException;
 import java.util.List;
 
 import networklib.model.MCategory;
+import networklib.model.MModel;
 import rx.Observable;
 import rx.Subscriber;
+import rx.functions.Func1;
 
 import static rx.Observable.OnSubscribe;
 
@@ -24,70 +28,62 @@ public class BBCommerceApi {
     private String baseUrl = "https://gncapi.uat.bbhosted.com";
     private OkHttpClient mClient;
     private JsonParser mJsonParser;
-
-    /**
-     *
-     * @param route the category id as a String
-     * @return
-     */
-    public <T extends MCategory> Observable<List<T>> getCategories(final String route) {
-        return Observable.create(new OnSubscribe<List<T>>() {
-                    @Override
-                    public void call(final Subscriber<? super List<T>> subscriber) {
-
-                        // build network request with the given category id
-                        Request request = new Request.Builder()
-                                .url(baseUrl + route)
-                                .get() // GET request
-                                .build();
-
-                        // post the request
-                        mClient.newCall(request).enqueue(new Callback() {
-                            @Override
-                            public void onFailure(Request request, IOException e) {
-                                // we cascade the error to the subscriber
-                                // in order to let it handle the exception
-                                subscriber.onError(e);
-
-                                // XXX: shouldn't we let the
-                                // subscriber perform this operation
-                                // based on the lifecycle of the fragment/activity
-                                // subscriber.unsubscribe();
-                            }
-
-                            @Override
-                            public void onResponse(Response response) throws IOException {
-
-                                JsonArray categoryJsonArray = mJsonParser.parse(response.body().string())
-                                                                .getAsJsonObject()
-                                                                .getAsJsonArray("categories");
-
-                                List<T> categories =  GsonUtils.getInstance().getGson().fromJson(categoryJsonArray, new TypeToken<List<MCategory>>() {
-                                }.getType());
-
-                                // inform the observer that there
-                                // there is data available for consumption
-                                subscriber.onNext(categories);
-
-                                // inform the observer that we are
-                                // have finished feeding it data
-                                subscriber.onCompleted();
-                                // XXX: shouldn't we let the
-                                // subscriber perform this operation
-                                // based on the lifecycle of the fragment/activity
-                                // subscriber.unsubscribe();
-                            }
-                        });
-                    }
-
-
-        });
-
+    
+    interface HttpDecorator {
+        void decorate(Request.Builder req);
     }
 
-    public <A> List<A> getStuff(A thing) {
-        return GsonUtils.getInstance().getGson().fromJson("sdf", new TypeToken<List<A>>() {
-        }.getType());
+    public Observable<String> httpVerb(final String route, final HttpDecorator decorator) {
+        return Observable.create(new OnSubscribe<String>() {
+            public void call(final Subscriber<? super String> subscriber) {
+                Request.Builder requestBuilder = new Request.Builder()
+                    .url(baseUrl+route);
+                decorator.decorate(requestBuilder);
+                Request request = requestBuilder.build();
+
+                mClient.newCall(request).enqueue(new Callback() {
+                    public void onFailure(Request request, IOException ex) {
+                        subscriber.onError(ex);
+                    }
+
+                    public void onResponse(Response resp) throws IOException {
+                        subscriber.onNext(resp.body().string());
+                    }
+                });
+            }
+        });
+    }
+
+    protected <T> Func1<String, T> makeJsonConverter(final Class<T> ofClass) {
+        return new Func1<String, T>() {
+            public T call(String x) {
+                return GsonUtils.getInstance().getGson().fromJson(x, ofClass);
+            }
+        };
+    }
+
+    public <T> Observable<T> GET(final String route, Func1<String, T> converter) {
+        return httpVerb(route, new HttpDecorator() {
+            public void decorate(Request.Builder builder) {
+                builder.get();
+            }
+        }).map(converter);
+    }
+
+    public <T> Observable<T> GET(final String route, final Class<T> ofClass) {
+        return GET(route, makeJsonConverter(ofClass));
+    }
+
+    public <T> Observable<T> POST(final String route, final String payload, final String contentType, final Class<T> ofClass) {
+        return httpVerb(route, new HttpDecorator() {
+            public void decorate(Request.Builder builder) {
+                MediaType type = MediaType.parse(contentType);
+                RequestBody body = RequestBody.create(type, payload);
+                builder
+                    .post(body);
+
+            }
+        }).map(makeJsonConverter(ofClass));
     }
 
     // singleton

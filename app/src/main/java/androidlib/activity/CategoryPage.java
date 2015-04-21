@@ -12,7 +12,9 @@ import java.util.List;
 import androidlib.adapter.CategoryAdapter;
 import networklib.BBCommerceApi;
 import networklib.model.MCategory;
+import networklib.model.MCategoryPage;
 import rx.Subscriber;
+import rx.functions.Func1;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -35,7 +37,12 @@ public class CategoryPage extends BasePageActivity {
                 getIntent().getStringExtra(BasePageActivity.ROUTE) : "/";
 
         BBCommerceApi.getInstance()
-                .getCategories(route)
+                .GET(route, MCategoryPage.class)
+                .map(new Func1<MCategoryPage, List<MCategory>>() {
+                    public List<MCategory> call(MCategoryPage x) {
+                        return x.categories;
+                    }
+                })
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<List<MCategory>>() {
@@ -44,8 +51,7 @@ public class CategoryPage extends BasePageActivity {
 
                     @Override
                     public void onError(Throwable e) {
-                        e.printStackTrace();
-                        Toast.makeText(CategoryPage.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(CategoryPage.this, e.toString(), Toast.LENGTH_LONG).show();
                     }
 
                     @Override
